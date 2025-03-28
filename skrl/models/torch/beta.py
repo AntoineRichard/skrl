@@ -75,12 +75,15 @@ class BetaMixin:
             )
         """
 
-        
-        self._b_actions_min = self.action_space.low if self.action_space.low is not None else -1.0
-        self._b_actions_max = self.action_space.high if self.action_space.high is not None else 1.0
+        if self.action_space.low is None or self.action_space.low == -float("inf"):
+            self._b_actions_min = -1.0
+        else:
+            self._b_actions_min = torch.tensor(self.action_space.low , device=self.device, dtype=torch.float32)
 
-        #self._b_clip_actions_min = torch.tensor(self.action_space.low, device=self.device, dtype=torch.float32)
-        #self._b_clip_actions_max = torch.tensor(self.action_space.high, device=self.device, dtype=torch.float32)
+        if self.action_space.high is None or self.action_space.high == float("inf"): 
+            self._b_actions_max = 1.0
+        else:
+            self._b_actions_max = torch.tensor(self.action_space.high, device=self.device, dtype=torch.float32)
 
         self._b_log_std = None
         self._b_num_samples = None
