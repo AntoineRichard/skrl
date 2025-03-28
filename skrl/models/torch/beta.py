@@ -125,7 +125,8 @@ class BetaMixin:
         """
         # map from states/observations to mean actions and log standard deviations
         a, b, outputs = self.compute(inputs, role)
-
+        a = a*20.0
+        b = b*20.0
         self._b_num_samples = a.shape[0]
 
         print("a:", a[:5])
