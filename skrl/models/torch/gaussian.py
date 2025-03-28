@@ -146,7 +146,7 @@ class GaussianMixin:
             # Bring the actions to the [-1,1] range
             clipped_actions = torch.tanh(actions)
             # Correct the probability density function accordingly
-            log_prob = self._g_distribution.log_prob(inputs.get("taken_actions", actions)) - torch.sum(self._g_distribution.log_prob(1 - clipped_actions*clipped_actions), dim=-1)
+            log_prob = self._g_distribution.log_prob(inputs.get("taken_actions", actions)) - torch.sum(self._g_distribution.log_prob(1 - clipped_actions*clipped_actions))
             # Scale to desired ranges
             actions = clipped_actions * (self._g_clip_actions_max - self._g_clip_actions_min) + self._g_clip_actions_min
         else:
