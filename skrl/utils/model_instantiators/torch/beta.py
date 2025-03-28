@@ -70,7 +70,6 @@ def beta_model(
 
     # parse model definition
     containers, output = generate_containers(network, output, embed_output=True, indent=1)
-    print(containers, output)
     # network definitions
     networks = []
     forward: list[str] = []
@@ -86,25 +85,19 @@ def beta_model(
         forward.append(f'alpha = self.alpha_activation(self.alpha_layer({container["name"]})) + 1')
         forward.append(f'beta = self.beta_activation(self.beta_layer({container["name"]})) + 1')
     if output["output"]:
-        print("Is it here?")
         networks.append(f'self.alpha_layer = nn.LazyLinear(out_features={output["size"]})')
         networks.append(f'self.beta_layer = nn.LazyLinear(out_features={output["size"]})')
         networks.append('self.alpha_activation = torch.nn.Softplus()')
         networks.append('self.beta_activation = torch.nn.Softplus()')
-        forward.append(f'alpha = {output["output"]}')
-        forward.append(f'beta = {output["output"]}')
+        forward.append(f'alpha = self.alpha_activation(self.alpha_layer({container["name"]})) + 1')
+        forward.append(f'beta = self.beta_activation(self.beta_layer({container["name"]})) + 1')
     else:
         networks.append(f'self.alpha_layer = nn.LazyLinear(out_features={output["size"]})')
         networks.append(f'self.beta_layer = nn.LazyLinear(out_features={output["size"]})')
         networks.append('self.alpha_activation = torch.nn.Softplus()')
         networks.append('self.beta_activation = torch.nn.Softplus()')
-        print("Or here?")
-        print(container)
-        print(forward)
-        #forward[-1] = forward[-1].replace(f'{container["name"]} =', "alpha =", 1)
         forward.append(f'alpha = self.alpha_activation(self.alpha_layer({container["name"]})) + 1')
         forward.append(f'beta = self.beta_activation(self.beta_layer({container["name"]})) + 1')
-        print(forward)
 
     # build substitutions and indent content
     networks = textwrap.indent("\n".join(networks), prefix=" " * 8)[8:]
