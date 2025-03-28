@@ -71,7 +71,6 @@ def beta_model(
     # parse model definition
     containers, output = generate_containers(network, output, embed_output=True, indent=1)
     print(containers, output)
-    print(container)
     # network definitions
     networks = []
     forward: list[str] = []
