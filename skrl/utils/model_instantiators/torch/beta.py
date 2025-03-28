@@ -101,7 +101,6 @@ def beta_model(
         print("Or here?")
         print(container)
         print(forward)
-        forward.append()
         #forward[-1] = forward[-1].replace(f'{container["name"]} =', "alpha =", 1)
         forward.append(f'alpha = self.alpha_activation(self.alpha_layer({forward[0]})) + 1')
         forward.append(f'beta = self.beta_activation(self.beta_layer({forward[0]})) + 1')
