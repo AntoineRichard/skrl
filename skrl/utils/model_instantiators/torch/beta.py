@@ -71,7 +71,7 @@ def beta_model(
     # parse model definition
     containers, output = generate_containers(network, output, embed_output=True, indent=1)
     print(containers, output)
-
+    print(container)
     # network definitions
     networks = []
     forward: list[str] = []
@@ -80,21 +80,32 @@ def beta_model(
         forward.append(f'{container["name"]} = self.{container["name"]}_container({container["input"]})')
     # process output
     if output["modules"]:
-        networks.append(f'self.alpha_layer = {output["modules"][0]}')
-        networks.append(f'self.beta_layer = {output["modules"][0]}')
-        networks.append(f'self.alpha_activation = torch.nn.Softplus()')
-        networks.append(f'self.beta_activation = torch.nn.Softplus()')
+        networks.append(f'self.alpha_layer = {output["modules"][0]}, \n')
+        networks.append(f'self.beta_layer = {output["modules"][0]}, \n')
+        networks.append('self.alpha_activation = torch.nn.Softplus(), \n')
+        networks.append('self.beta_activation = torch.nn.Softplus()')
         forward.append(f'alpha = self.alpha_activation(self.alpha_layer({container["name"]})) + 1')
         forward.append(f'beta = self.beta_activation(self.beta_layer({container["name"]})) + 1')
     if output["output"]:
         print("Is it here?")
+        networks.append(f'self.alpha_layer = {output["modules"][0]}, \n')
+        networks.append(f'self.beta_layer = {output["modules"][0]}, \n')
+        networks.append('self.alpha_activation = torch.nn.Softplus(), \n')
+        networks.append('self.beta_activation = torch.nn.Softplus()')
         forward.append(f'alpha = {output["output"]}')
         forward.append(f'beta = {output["output"]}')
     else:
+        networks.append(f'self.alpha_layer = {output["modules"][0]}, \n')
+        networks.append(f'self.beta_layer = {output["modules"][0]}, \n')
+        networks.append('self.alpha_activation = torch.nn.Softplus(), \n')
+        networks.append('self.beta_activation = torch.nn.Softplus()')
         print("Or here?")
         print(container)
         print(forward)
-        forward[-1] = forward[-1].replace(f'{container["name"]} =', "output =", 1)
+        forward.append()
+        #forward[-1] = forward[-1].replace(f'{container["name"]} =', "alpha =", 1)
+        forward.append(f'alpha = self.alpha_activation(self.alpha_layer({forward[0]})) + 1')
+        forward.append(f'beta = self.beta_activation(self.beta_layer({forward[0]})) + 1')
         print(forward)
 
     # build substitutions and indent content
