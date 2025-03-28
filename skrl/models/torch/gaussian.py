@@ -8,7 +8,7 @@ from torch.distributions import Normal
 
 # speed up distribution construction by disabling checking
 Normal.set_default_validate_args(False)
-
+EPS = 1e-6
 
 class GaussianMixin:
     def __init__(
@@ -135,6 +135,9 @@ class GaussianMixin:
         self._g_log_std = log_std
         self._g_num_samples = mean_actions.shape[0]
 
+        if self._g_clip_actions:
+            mean_actions = torch.tanh(mean_actions)
+
         # distribution
         self._g_distribution = Normal(mean_actions, log_std.exp())
 
@@ -145,9 +148,9 @@ class GaussianMixin:
         if self._g_clip_actions:
             # Bring the actions to the [-1,1] range
             clipped_actions = torch.tanh(actions)
-            # Correct the probability density function accordingly
-            log_prob = self._g_distribution.log_prob(inputs.get("taken_actions", actions)) - self._g_distribution.log_prob(1 - clipped_actions*clipped_actions)
-            # Scale to desired ranges
+            # Correct the log of the probability density function accordingly
+            log_prob = self._g_distribution.log_prob(inputs.get("taken_actions", actions)) - torch.log(1 - clipped_actions*clipped_actions + EPS)
+            # Scale the actions to the desired range
             actions = ((clipped_actions + 1) / 2.0) * (self._g_clip_actions_max - self._g_clip_actions_min) + self._g_clip_actions_min
         else:
             # log of the probability density function
