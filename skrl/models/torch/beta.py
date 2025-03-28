@@ -128,6 +128,9 @@ class BetaMixin:
 
         self._b_num_samples = a.shape[0]
 
+        print("a:", a[:5])
+        print("b:", b[:5])
+
         # distribution
         self._g_distribution = Beta(a, b)
 
