@@ -137,6 +137,7 @@ class BetaMixin:
 
         # sample using the reparameterization trick
         actions = self._g_distribution.rsample()
+        print("actions:", actions[:5])
 
         # log of the probability density function
         log_prob = self._g_distribution.log_prob(actions)

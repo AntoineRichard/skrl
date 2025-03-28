@@ -78,12 +78,14 @@ def beta_model(
         forward.append(f'{container["name"]} = self.{container["name"]}_container({container["input"]})')
     # process output
     if output["modules"]:
+        networks.append(f'self.custom_output = {output["modules"][0]}')
         networks.append(f'self.alpha_layer = nn.LazyLinear(out_features={output["size"]})')
         networks.append(f'self.beta_layer = nn.LazyLinear(out_features={output["size"]})')
         networks.append('self.alpha_activation = torch.nn.Softplus()')
         networks.append('self.beta_activation = torch.nn.Softplus()')
-        forward.append(f'alpha = self.alpha_activation(self.alpha_layer({container["name"]})) + 1')
-        forward.append(f'beta = self.beta_activation(self.beta_layer({container["name"]})) + 1')
+        forward.append(f'custom_output = self.custom_output({container["name"]})')
+        forward.append('alpha = self.alpha_activation(self.alpha_layer(custom_output)) + 1')
+        forward.append('beta = self.beta_activation(self.beta_layer(custom_output)) + 1')
     if output["output"]:
         networks.append(f'self.alpha_layer = nn.LazyLinear(out_features={output["size"]})')
         networks.append(f'self.beta_layer = nn.LazyLinear(out_features={output["size"]})')
