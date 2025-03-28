@@ -141,6 +141,7 @@ class BetaMixin:
 
         # log of the probability density function
         log_prob = self._g_distribution.log_prob(actions)
+        print("log_prob:", log_prob[:5])
 
         if self._g_reduction is not None:
             log_prob = self._g_reduction(log_prob, dim=-1)
