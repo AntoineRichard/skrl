@@ -74,11 +74,13 @@ class BetaMixin:
               )
             )
         """
-        self._b_clip_actions = clip_actions and isinstance(self.action_space, gymnasium.Space)
 
-        if self._b_clip_actions:
-            self._b_clip_actions_min = torch.tensor(self.action_space.low, device=self.device, dtype=torch.float32)
-            self._b_clip_actions_max = torch.tensor(self.action_space.high, device=self.device, dtype=torch.float32)
+        
+        self._b_actions_min = self.action_space.low if self.action_space.low is not None else -1.0
+        self._b_actions_max = self.action_space.high if self.action_space.high is not None else 1.0
+
+        #self._b_clip_actions_min = torch.tensor(self.action_space.low, device=self.device, dtype=torch.float32)
+        #self._b_clip_actions_max = torch.tensor(self.action_space.high, device=self.device, dtype=torch.float32)
 
         self._b_log_std = None
         self._b_num_samples = None
@@ -121,10 +123,7 @@ class BetaMixin:
         # map from states/observations to mean actions and log standard deviations
         a, b, outputs = self.compute(inputs, role)
 
-        self._b_num_samples = mean_actions.shape[0]
-
-        if self._b_clip_actions:
-            mean_actions = torch.tanh(mean_actions)
+        self._b_num_samples = a.shape[0]
 
         # distribution
         self._g_distribution = Beta(a, b)
@@ -140,7 +139,8 @@ class BetaMixin:
         if log_prob.dim() != actions.dim():
             log_prob = log_prob.unsqueeze(-1)
 
-        outputs["mean_actions"] = (a / (a + b))
+        outputs["mean_actions"] = (a / (a + b)) * (self._b_actions_max - self._b_actions_min) + self._b_actions_min
+        actions = actions * (self._b_actions_max - self._b_actions_min) + self._b_actions_min
         return actions, log_prob, outputs
 
     def get_entropy(self, role: str = "") -> torch.Tensor:
