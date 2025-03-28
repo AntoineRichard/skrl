@@ -87,10 +87,15 @@ def beta_model(
         forward.append(f'alpha = self.alpha_activation(self.alpha_layer({container["name"]})) + 1')
         forward.append(f'beta = self.beta_activation(self.beta_layer({container["name"]})) + 1')
     if output["output"]:
+        print("Is it here?")
         forward.append(f'alpha = {output["output"]}')
         forward.append(f'beta = {output["output"]}')
     else:
+        print("Or here?")
+        print(container)
+        print(forward)
         forward[-1] = forward[-1].replace(f'{container["name"]} =', "output =", 1)
+        print(forward)
 
     # build substitutions and indent content
     networks = textwrap.indent("\n".join(networks), prefix=" " * 8)[8:]
