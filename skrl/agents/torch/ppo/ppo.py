@@ -452,16 +452,18 @@ class PPO(Agent):
 
                     sampled_states = self._state_preprocessor(sampled_states, train=not epoch)
 
+                    print("sampled_actions", sampled_actions[:5])
                     _, next_log_prob, _ = self.policy.act(
                         {"states": sampled_states, "taken_actions": sampled_actions}, role="policy"
                     )
-
+                    print("sampled_log_prob", sampled_log_prob[:5])
+                    print("next_log_prob", next_log_prob[:5])
                     # compute approximate KL divergence
                     with torch.no_grad():
                         ratio = next_log_prob - sampled_log_prob
                         kl_divergence = ((torch.exp(ratio) - 1) - ratio).mean()
                         kl_divergences.append(kl_divergence)
-
+                    print("ratio", ratio[:5])
                     # early stopping with KL divergence
                     if self._kl_threshold and kl_divergence > self._kl_threshold:
                         break
